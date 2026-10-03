@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Realm Tracker</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="app-version" content="2026-09-15.1">
+<meta name="app-version" content="2026-10-03.5">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -256,7 +256,7 @@
 
   /* ---------- LANDSCAPE GUARD ---------- */
   #landscapeGuard{ display:none; }
-  @media (orientation: landscape) and (max-height: 600px){
+  @media (orientation: landscape) and (max-height: 600px) and (max-width:599px){
     #app{ display:none; }
     #landscapeGuard{
       display:flex; position:fixed; inset:0; z-index:999;
@@ -267,6 +267,39 @@
   .landscape-icon{ font-size:2.2rem; color:var(--sorcery-text-accent); margin-bottom:12px; }
   .landscape-title{ font-family:'Cinzel',serif; font-size:1.1rem; letter-spacing:1px; color:var(--sorcery-text-accent); }
   .landscape-sub{ font-size:.78rem; color:var(--sorcery-text-muted); margin-top:8px; max-width:260px; }
+
+  /* Tap controls share the same phone layout at every screen width. */
+  .panel-life{flex:18 1 0;min-height:80px;}
+  .panel-manasites{flex:24 1 0;min-height:140px;}
+  .panel-threshold{flex:33 1 0;padding:8px;min-height:146px;}
+  .life-row{display:flex;align-items:stretch;gap:12px;flex:1;min-height:0;}
+  .life-row .bar-wrap{flex:1;min-width:0;}
+  #lifeVal{flex:0 0 64px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cinzel',serif;font-weight:700;font-size:clamp(2rem,9vw,3rem);font-variant-numeric:tabular-nums;text-shadow:0 1px 4px #000;}
+  .bar-zones{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;}
+  button{font:inherit;cursor:pointer;touch-action:manipulation;}
+  .bar-zones button{border:0;background:transparent;color:#fff;font-size:1.6rem;text-shadow:0 1px 3px #000;padding:0;}
+  .bar-zones button:active{background:transparent;}
+  #manaBar{cursor:default;min-height:12px;border:1px solid color-mix(in srgb, var(--mana) 16%, transparent);border-radius:4px;padding:2px;}
+  .mana-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:6px;}
+  .mana-control{display:grid;grid-template-columns:repeat(2,minmax(56px,1fr));column-gap:8px;text-align:center;}
+  .mana-control span{grid-column:1 / -1;font-size:.65rem;color:var(--sorcery-text-muted);}
+  .mana-control button{width:100%;min-width:56px;height:56px;min-height:56px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--sorcery-text);font-size:1.8rem;}
+  .mana-control button:active{color:var(--mana);}
+  button:focus-visible{outline:2px solid var(--sorcery-text-accent);outline-offset:-2px;}
+  .threshold-grid{flex:1;min-height:128px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,64px);align-content:center;column-gap:6px;row-gap:0;}
+  .threshold-grid button{min-width:0;min-height:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;border:0;border-radius:0;background:transparent;box-shadow:none;padding:0;}
+  .threshold-symbol svg{width:36px;height:36px;flex:none;}
+  .threshold-number{font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:var(--sorcery-text);font-variant-numeric:tabular-nums;}
+  .threshold-grid button:active{background:transparent;opacity:.7;}
+  @media(max-height:550px){#content{overflow:auto;}.panel-life{min-height:80px;}.panel-manasites{min-height:140px;}.panel-threshold{min-height:146px;}.panel-primary{min-height:65px;}.panel-secondary{min-height:44px;}}
+
+  @media(min-width:600px){
+    body{align-items:center;padding:20px;}
+    #app{flex:0 1 440px;width:440px;max-width:100%;height:min(860px,calc(100dvh - 40px));border:1px solid var(--sorcery-border);border-radius:24px;box-shadow:0 12px 48px rgba(0,0,0,.35);}
+    #content{overflow:auto;}
+    .panel-primary{min-height:65px;}
+    .panel-secondary{min-height:44px;}
+  }
 </style>
 </head>
 <body>
@@ -289,39 +322,29 @@
 
     <!-- LIFE -->
     <div class="card panel-life" id="lifeCard">
-      <div class="row-label">
-        <div class="name"><span class="ic" style="color:var(--life)">&#10084;</span> LIFE</div>
-        <div class="val" id="lifeVal">17 <small>/ 20</small></div>
-      </div>
-      <div class="bar-wrap" id="lifeBar">
-        <div class="bar-track" id="lifeSegs"></div>
-        <div class="deathsdoor" id="deathsDoor" style="display:none;">&#9760; DEATH&rsquo;S DOOR</div>
+      <div class="row-label"><div class="name"><span class="ic" style="color:var(--life)">&#10084;</span> LIFE</div></div>
+      <div class="life-row">
+        <div class="bar-wrap" id="lifeBar">
+          <div class="bar-track" id="lifeSegs"></div>
+          <div class="bar-zones"><button data-action="life-minus" aria-label="Subtract one life"></button><button data-action="life-plus" aria-label="Add one life"></button></div>
+          <div class="deathsdoor" id="deathsDoor" style="display:none;">&#9760; DEATH&rsquo;S DOOR</div>
+        </div>
+        <div id="lifeVal" aria-live="polite">20</div>
       </div>
     </div>
-
     <!-- MANA -->
     <div class="card panel-manasites" id="manaCard">
       <div class="mana-block">
-        <div class="row-label">
-          <div class="name"><span class="ic" style="color:var(--mana)">&#128167;</span> MANA</div>
-          <div class="val" id="manaVal">6 <small>/ 8</small></div>
+        <div class="row-label"><div class="name"><span class="ic" style="color:var(--mana)">&#128167;</span> MANA</div><div class="val" id="manaVal">0 <small>/ 0</small></div></div>
+        <div class="bar-wrap" id="manaBar"><div class="bar-track" id="manaSegs"></div></div>
+        <div class="mana-controls">
+          <div class="mana-control"><span>Current</span><button data-action="mana-minus" aria-label="Subtract one current mana">−</button><button data-action="mana-plus" aria-label="Add one current mana">+</button></div>
+          <div class="mana-control"><span>Max</span><button data-action="max-minus" aria-label="Subtract one maximum mana">−</button><button data-action="max-plus" aria-label="Add one maximum mana">+</button></div>
         </div>
-        <div class="bar-wrap" id="manaBar">
-          <div class="bar-track" id="manaSegs"></div>
-        </div>
-      </div>
-      <div class="maxmana-block" id="manaMaxBtn">
-        <span class="ic">&#10133;</span>
-        <div class="cap">MAX<br>MANA</div>
       </div>
     </div>
-
-    <!-- THRESHOLD CROSS -->
-    <div class="card panel-threshold" id="thresholdCard">
-      <div class="cross-wrap" id="crossWrap">
-        <svg id="crossSvg" viewBox="0 0 320 320"></svg>
-      </div>
-    </div>
+    <!-- THRESHOLD -->
+    <div class="card panel-threshold" id="thresholdCard"><div class="threshold-grid" id="thresholdGrid"></div></div>
 
     <!-- PRIMARY ACTIONS -->
     <div class="panel-primary">
@@ -341,23 +364,6 @@
       <div class="btn-secondary btn-secondary-live" id="settingsBtn">&#9881; SETTINGS</div>
     </div>
 
-  </div>
-
-  <div id="overlay">
-    <div class="slider-card">
-      <div class="lbl" id="ovLabel">LIFE</div>
-      <div class="wheel-wrap" id="wheelWrap">
-        <svg id="wheelSvg" viewBox="0 0 220 220"></svg>
-        <div class="wheel-center">
-          <div class="ov-value-main" id="ovValue">17</div>
-          <div class="ov-value-delta" id="ovDelta"></div>
-        </div>
-      </div>
-      <div class="ov-actions">
-        <button class="ov-btn ov-cancel" id="ovCancelBtn">Cancel</button>
-        <button class="ov-btn ov-confirm" id="ovConfirmBtn">Confirm</button>
-      </div>
-    </div>
   </div>
 
   <div id="settingsOverlay">
@@ -473,124 +479,19 @@
     setTimeout(function(){ el.classList.remove('shake'); }, 340);
   }
 
-  var VOID_HEX = '#0a0910';
-  var TRI_UP = 'M13 2 L24 21 L2 21 Z';
-  var TRI_DOWN = 'M13 22 L24 3 L2 3 Z';
-
-  /* ---------- THRESHOLD CROSS (SVG) ---------- */
-  var CX=160, CY=160, WEDGE_R=150;
-  var DOT_R=[38,68,98,128];
-  var BG_GLYPH_R=88;
-  var AXES = {
-    air:   { angle:0,   color:COLORS.air   },
-    fire:  { angle:90,  color:COLORS.fire  },
-    water: { angle:180, color:COLORS.water },
-    earth: { angle:270, color:COLORS.earth }
-  };
-
-  function pt(r, angleDeg){
-    // 0deg = north, angle increases clockwise
-    var rad = angleDeg * Math.PI/180;
-    var x = CX + r*Math.sin(rad);
-    var y = CY - r*Math.cos(rad);
-    return {x:x, y:y};
-  }
-  function wedgePath(startAngle, endAngle){
-    var p1 = pt(WEDGE_R, startAngle);
-    var p2 = pt(WEDGE_R, endAngle);
-    var large = (endAngle-startAngle) > 180 ? 1 : 0;
-    return 'M '+CX+' '+CY+' L '+p1.x.toFixed(1)+' '+p1.y.toFixed(1)+
-      ' A '+WEDGE_R+' '+WEDGE_R+' 0 '+large+' 1 '+p2.x.toFixed(1)+' '+p2.y.toFixed(1)+' Z';
-  }
-
-  var svg = document.getElementById('crossSvg');
-  var svgHTML = '';
-
-  // outer guide ring
-  svgHTML += '<circle cx="'+CX+'" cy="'+CY+'" r="'+WEDGE_R+'" fill="none" stroke="var(--sorcery-border)" stroke-width="1"/>';
-
-  // faint quadrant dividers along the wedge boundaries, blended between each pair of neighboring elements
-  var DIVIDERS = [
-    { angle:45,  c1:AXES.air.color,   c2:AXES.fire.color,  id:'divAirFire'   },
-    { angle:135, c1:AXES.fire.color,  c2:AXES.water.color, id:'divFireWater' },
-    { angle:225, c1:AXES.water.color, c2:AXES.earth.color, id:'divWaterEarth'},
-    { angle:315, c1:AXES.earth.color, c2:AXES.air.color,   id:'divEarthAir'  }
-  ];
-  var defsHTML = '<defs>';
-  var dividerHTML = '';
-  DIVIDERS.forEach(function(d){
-    var p1 = pt(30, d.angle);
-    var p2 = pt(WEDGE_R, d.angle);
-    defsHTML += '<linearGradient id="'+d.id+'" gradientUnits="userSpaceOnUse" x1="'+p1.x.toFixed(1)+'" y1="'+p1.y.toFixed(1)+'" x2="'+p2.x.toFixed(1)+'" y2="'+p2.y.toFixed(1)+'">' +
-      '<stop offset="0" stop-color="'+d.c1+'" stop-opacity="0.22"/>' +
-      '<stop offset="1" stop-color="'+d.c2+'" stop-opacity="0.22"/>' +
-      '</linearGradient>';
-    dividerHTML += '<line x1="'+p1.x.toFixed(1)+'" y1="'+p1.y.toFixed(1)+'" x2="'+p2.x.toFixed(1)+'" y2="'+p2.y.toFixed(1)+'" stroke="url(#'+d.id+')" stroke-width="1.4" stroke-linecap="round"/>';
+  var elements = ['air','earth','fire','water'];
+  var grid = document.getElementById('thresholdGrid');
+  elements.forEach(function(key){
+    var up = key === 'air' || key === 'fire';
+    var barred = key === 'air' || key === 'earth';
+    var symbol = '<svg viewBox="0 0 26 26" aria-hidden="true"><path d="'+(up ? 'M13 3 L24 23 L2 23 Z' : 'M13 23 L24 3 L2 3 Z')+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'+(barred ? '<path d="M2 13 H24" stroke="currentColor" stroke-width="2"/>' : '')+'</svg>';
+    grid.insertAdjacentHTML('beforeend','<button class="threshold-symbol" data-element="'+key+'" data-delta="1" style="color:'+COLORS[key]+'" aria-label="Add one '+key+' threshold">'+symbol+'</button>');
   });
-  defsHTML += '</defs>';
-  svgHTML += defsHTML + dividerHTML;
-
-  // wedges
-  Object.keys(AXES).forEach(function(key){
-    var a = AXES[key].angle;
-    svgHTML += '<path class="wedge" data-el="'+key+'" fill="'+AXES[key].color+'" d="'+wedgePath(a-45, a+45)+'"></path>';
+  elements.forEach(function(key){
+    grid.insertAdjacentHTML('beforeend','<button class="threshold-number" id="threshold-'+key+'" data-element="'+key+'" data-delta="-1" aria-label="Subtract one '+key+' threshold">0</button>');
   });
-
-  // dimmed background glyph per quadrant — pure decoration, marks which region belongs to which element
-  Object.keys(AXES).forEach(function(key){
-    var up = (key === 'air' || key === 'fire');
-    var pbg = pt(BG_GLYPH_R, AXES[key].angle);
-    svgHTML += '<g transform="translate('+pbg.x.toFixed(1)+','+pbg.y.toFixed(1)+') scale(2.1) translate(-13,-12)" opacity="0.09" pointer-events="none">' +
-      '<path d="'+(up ? TRI_UP : TRI_DOWN)+'" fill="none" stroke="'+AXES[key].color+'" stroke-width="2.4" stroke-linejoin="round"/>' +
-      '<rect x="1" y="'+((up?14:10)-1.3).toFixed(1)+'" width="24" height="3" fill="'+AXES[key].color+'"/>' +
-      '</g>';
-  });
-
-  // center emblem
-  svgHTML += '<circle cx="'+CX+'" cy="'+CY+'" r="26" fill="var(--sorcery-surface-raised)" stroke="var(--sorcery-accent)" stroke-width="1.5" />';
-  svgHTML += '<path d="M'+CX+' '+(CY-16)+' L'+(CX+5)+' '+(CY-5)+' L'+(CX+16)+' '+CY+' L'+(CX+5)+' '+(CY+5)+' L'+CX+' '+(CY+16)+' L'+(CX-5)+' '+(CY+5)+' L'+(CX-16)+' '+CY+' L'+(CX-5)+' '+(CY-5)+' Z" fill="none" stroke="var(--sorcery-accent)" stroke-width="1.2" opacity="0.8"/>';
-
-  // dot groups (populated in renderThreshold)
-  Object.keys(AXES).forEach(function(key){
-    svgHTML += '<g id="dots-'+key+'"></g>';
-  });
-
-  svg.innerHTML = svgHTML;
-
   function renderThreshold(){
-    Object.keys(AXES).forEach(function(key){
-      var val = state.threshold[key];
-      var visual = Math.min(val,4);
-      var angle = AXES[key].angle;
-      var color = AXES[key].color;
-      var g = document.getElementById('dots-'+key);
-      var html = '';
-
-      if(visual === 0){
-        for(var e=0;e<4;e++){
-          var pe0 = pt(DOT_R[e], angle);
-          html += '<circle class="dot ring-empty" cx="'+pe0.x.toFixed(1)+'" cy="'+pe0.y.toFixed(1)+'" r="9"/>';
-        }
-      } else {
-        for(var i=0;i<visual;i++){
-          var p = pt(DOT_R[i], angle);
-          var isLatest = (i === visual-1);
-          if(isLatest){
-            var r = val >= 10 ? 16 : 14;
-            html += '<circle class="dot" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'" fill="'+color+'" style="filter:drop-shadow(0 0 5px '+color+'aa)"/>';
-            html += '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+4.5).toFixed(1)+'" text-anchor="middle" font-family="Cinzel, serif" font-weight="700" font-size="'+(val>=10?13:15)+'" fill="'+VOID_HEX+'">'+val+'</text>';
-          } else {
-            html += '<circle class="dot" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="8" fill="'+color+'" opacity="0.8"/>';
-          }
-        }
-        for(var j=visual;j<4;j++){
-          var pe = pt(DOT_R[j], angle);
-          html += '<circle class="dot ring-empty" cx="'+pe.x.toFixed(1)+'" cy="'+pe.y.toFixed(1)+'" r="9"/>';
-        }
-      }
-
-      g.innerHTML = html;
-    });
+    elements.forEach(function(key){ document.getElementById('threshold-'+key).textContent = state.threshold[key]; });
   }
 
   /* ---------- RENDER: LIFE / MANA ---------- */
@@ -609,7 +510,7 @@
     }
     document.getElementById('deathsDoor').style.display = state.life <= 0 ? 'flex' : 'none';
     var valEl = document.getElementById('lifeVal');
-    valEl.innerHTML = state.life <= 0 ? '<small>&nbsp;</small>' : (state.life + ' <small>/ '+LIFE_MAX+'</small>');
+    valEl.textContent = state.life;
   }
 
   function renderMana(){
@@ -658,325 +559,29 @@
     } catch(e){ /* nothing saved yet, or storage unavailable — start fresh */ }
   }
 
-  /* ---------- OVERLAY WHEEL ---------- */
-  var overlay = document.getElementById('overlay');
-  var ovLabel = document.getElementById('ovLabel');
-  var ovValue = document.getElementById('ovValue');
-  var ovDelta = document.getElementById('ovDelta');
-  var wheelWrap = document.getElementById('wheelWrap');
-  var wheelSvg = document.getElementById('wheelSvg');
-  var ovCancelBtn = document.getElementById('ovCancelBtn');
-  var ovConfirmBtn = document.getElementById('ovConfirmBtn');
-
-  var activeCfg = null;
-  var activeBaseVal = 0;
-  var activeMin = 0;
-  var activeHardMax = 0;   // absolute ceiling (e.g. manaMax + overflow buffer)
-  var activeDialMax = 0;   // value at which the dial completes exactly one revolution (360°)
-  var dialSegments = 1;    // number of notches around the ring
-  var dialUnitsPerNotch = 1;
-  var degreesPerUnit = 360; // rotation needed per unit — same rate is used past the dial for overflow
-  var overflowDegSpan = 0; // extra degrees available beyond 360° for pushing past dialMax
-  var totalDegSpan = 360;  // full explorable range: 0 (=min) .. totalDegSpan (=hardMax)
-
-  var WHEEL_CX = 110, WHEEL_CY = 110, WHEEL_R = 92;
-  var WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_R;
-
-  var wheelMarkerEl = null;
-  var wheelFillEl = null;
-  var wheelDragging = false;
-  var wheelLastAngle = 0;
-  var virtualAngle = 0; // continuous, unwrapped — 0 at min, 360 at dialMax, up to totalDegSpan at hardMax
-
-  function wheelPt(r, angleDeg){
-    var rad = angleDeg * Math.PI/180;
-    return { x: WHEEL_CX + r*Math.sin(rad), y: WHEEL_CY - r*Math.cos(rad) };
+  function changeValue(target, key, delta, min, max, el){
+    var next = clamp(target[key] + delta, min, max);
+    if(next === target[key]){ fail(el); return; }
+    pushHistory(); target[key] = next; render(); ok(el);
   }
-
-  function buildWheelSVG(color, segments){
-    var ticks = '';
-    var tickCount = Math.min(segments, 48); // avoid an unreadably dense ring for very large ranges
-    for(var i=0; i<tickCount; i++){
-      var deg = (360/tickCount) * i;
-      var p1 = wheelPt(76, deg);
-      var p2 = wheelPt(88, deg);
-      ticks += '<line x1="'+p1.x.toFixed(1)+'" y1="'+p1.y.toFixed(1)+'" x2="'+p2.x.toFixed(1)+'" y2="'+p2.y.toFixed(1)+'" stroke="var(--sorcery-text)" stroke-opacity="0.25" stroke-width="2"/>';
-    }
-    return '<circle cx="'+WHEEL_CX+'" cy="'+WHEEL_CY+'" r="'+WHEEL_R+'" fill="none" stroke="'+color+'" stroke-opacity="0.14" stroke-width="16"/>' +
-      '<circle id="wheelFill" cx="'+WHEEL_CX+'" cy="'+WHEEL_CY+'" r="'+WHEEL_R+'" fill="none" stroke="'+color+'" stroke-width="16" ' +
-        'stroke-linecap="round" stroke-dasharray="0 '+WHEEL_CIRCUMFERENCE.toFixed(1)+'" ' +
-        'transform="rotate(-90 '+WHEEL_CX+' '+WHEEL_CY+')" style="filter:drop-shadow(0 0 5px '+color+'99)"/>' +
-      ticks +
-      '<circle id="wheelMarker" cx="'+WHEEL_CX+'" cy="'+(WHEEL_CY-WHEEL_R)+'" r="9" fill="'+color+'" opacity="0.55"/>';
-  }
-
-  function positionMarker(angleDeg){
-    if(!wheelMarkerEl) return;
-    var p = wheelPt(WHEEL_R, angleDeg);
-    wheelMarkerEl.setAttribute('cx', p.x.toFixed(1));
-    wheelMarkerEl.setAttribute('cy', p.y.toFixed(1));
-  }
-
-  function updateFillArc(value){
-    if(!wheelFillEl) return;
-    var span = activeDialMax - activeMin;
-    var frac = span > 0 ? clamp((Math.min(value, activeDialMax) - activeMin) / span, 0, 1) : (value > activeMin ? 1 : 0);
-    var dash = frac * WHEEL_CIRCUMFERENCE;
-    wheelFillEl.setAttribute('stroke-dasharray', dash.toFixed(1) + ' ' + WHEEL_CIRCUMFERENCE.toFixed(1));
-  }
-
-  // Maps a continuous virtual angle (can exceed 360°) to a value, snapping to notches
-  // within the dial's own range and stepping continuously once past it (overflow).
-  function valueFromVirtualAngle(va){
-    if(va <= 360){
-      var idx = Math.round((va/360) * dialSegments);
-      idx = clamp(idx, 0, dialSegments);
-      return Math.round(activeMin + idx*dialUnitsPerNotch);
-    }
-    var extra = va - 360;
-    return clamp(Math.round(activeDialMax + extra/degreesPerUnit), activeDialMax, activeHardMax);
-  }
-
-  function updateValueDisplay(){
-    var val = activeCfg.getValue();
-    ovValue.textContent = val;
-    var delta = val - activeBaseVal;
-    if(delta === 0){
-      ovDelta.textContent = '';
-      ovDelta.classList.remove('pos','neg');
-    } else if(delta > 0){
-      ovDelta.textContent = '(+'+delta+')';
-      ovDelta.classList.add('pos');
-      ovDelta.classList.remove('neg');
-    } else {
-      ovDelta.textContent = '('+delta+')';
-      ovDelta.classList.add('neg');
-      ovDelta.classList.remove('pos');
-    }
-  }
-
-  function applyVirtualAngle(){
-    var prevVal = activeCfg.getValue();
-    var newVal = valueFromVirtualAngle(virtualAngle);
-    positionMarker(virtualAngle % 360);
-    if(newVal !== prevVal){
-      activeCfg.setValue(newVal);
-      render();
-      updateValueDisplay();
-      updateFillArc(newVal);
-    }
-  }
-
-  function angleFromCenter(clientX, clientY){
-    var rect = wheelWrap.getBoundingClientRect();
-    var cx = rect.left + rect.width/2;
-    var cy = rect.top + rect.height/2;
-    var dx = clientX - cx, dy = clientY - cy;
-    var deg = Math.atan2(dx, -dy) * 180/Math.PI; // 0 = up (12 o'clock), clockwise positive
-    if(deg < 0) deg += 360;
-    return deg;
-  }
-
-  function normalizeDelta(delta){
-    while(delta > 180) delta -= 360;
-    while(delta < -180) delta += 360;
-    return delta;
-  }
-
-  function openSlider(cfg, baseVal, hardMax, dialMax){
-    activeCfg = cfg;
-    activeBaseVal = baseVal;
-    activeMin = cfg.min;
-    activeHardMax = hardMax;
-    activeDialMax = Math.max(dialMax, activeMin + 1); // guard against a degenerate 0-width dial
-
-    var span = activeDialMax - activeMin;
-    dialSegments = Math.max(1, span); // one notch per unit — guarantees every integer is reachable, no rounding skips
-    dialUnitsPerNotch = span / dialSegments; // always exactly 1
-    degreesPerUnit = 360 / dialSegments; // overflow continues at this same rate — no jarring switch in sensitivity
-    overflowDegSpan = Math.max(0, activeHardMax - activeDialMax) * degreesPerUnit;
-    totalDegSpan = 360 + overflowDegSpan;
-
-    ovLabel.textContent = cfg.label;
-    ovLabel.style.color = cfg.color;
-    ovValue.style.color = cfg.color;
-    wheelSvg.innerHTML = buildWheelSVG(cfg.color, dialSegments);
-    wheelMarkerEl = document.getElementById('wheelMarker');
-    wheelFillEl = document.getElementById('wheelFill');
-
-    // Cosmetic starting position only — the first actual touch always sets virtualAngle fresh (see pointerdown).
-    virtualAngle = clamp(((Math.min(baseVal, activeDialMax) - activeMin) / span) * 360, 0, totalDegSpan);
-    positionMarker(virtualAngle % 360);
-    updateFillArc(baseVal);
-    updateValueDisplay();
-    overlay.classList.add('show');
-  }
-
-  function closeSlider(){
-    overlay.classList.remove('show');
-    activeCfg = null;
-    wheelDragging = false;
-  }
-
-  wheelWrap.addEventListener('pointerdown', function(e){
-    if(!activeCfg) return;
-    wheelDragging = true;
-    var touchAngle = angleFromCenter(e.clientX, e.clientY);
-    wheelLastAngle = touchAngle;
-    // Tapping anywhere on the ring jumps straight to that position — direct manipulation,
-    // not a relative nudge from wherever the value happened to be.
-    virtualAngle = clamp(touchAngle, 0, totalDegSpan);
-    applyVirtualAngle();
-    wheelWrap.setPointerCapture && wheelWrap.setPointerCapture(e.pointerId);
-  });
-
-  wheelWrap.addEventListener('pointermove', function(e){
-    if(!wheelDragging || !activeCfg) return;
-    var angle = angleFromCenter(e.clientX, e.clientY);
-    var delta = normalizeDelta(angle - wheelLastAngle);
-    wheelLastAngle = angle;
-    virtualAngle = clamp(virtualAngle + delta, 0, totalDegSpan);
-    applyVirtualAngle();
-  });
-
-  wheelWrap.addEventListener('pointerup', function(){ wheelDragging = false; });
-  wheelWrap.addEventListener('pointercancel', function(){ wheelDragging = false; });
-
-  ovConfirmBtn.addEventListener('click', function(){
-    closeSlider();
-  });
-
-  ovCancelBtn.addEventListener('click', function(){
-    if(activeCfg){
-      activeCfg.setValue(activeBaseVal);
-      render();
-    }
-    closeSlider();
-  });
-
-  overlay.addEventListener('click', function(e){
-    if(e.target === overlay) closeSlider(); // tapping the backdrop confirms, same as the Confirm button
-  });
-
-  /* ---------- HOLD / TAP ENGINE ---------- */
-  // Press-and-hold only ARMS the slider now — the user then lifts their finger and
-  // adjusts the on-screen slider freely (no cramped same-touch dragging near screen edges),
-  // confirming or cancelling explicitly when done.
-  function attachHoldTap(el, cfg){
-    var pressTimer = null;
-    var armed = false;
-    var startX = 0, startY = 0;
-    var HOLD_MS = 480;
-
-    function resolveMax(){ return (typeof cfg.max === 'function') ? cfg.max() : cfg.max; }
-    function resolveDialMax(curMax){
-      if(cfg.dialMax === undefined) return curMax;
-      return (typeof cfg.dialMax === 'function') ? cfg.dialMax() : cfg.dialMax;
-    }
-
-    function onDown(e){
-      e.preventDefault();
-      startX = e.clientX; startY = e.clientY;
-      var baseVal = cfg.getValue();
-      var curMax = resolveMax();
-      var curDialMax = resolveDialMax(curMax);
-      el.setPointerCapture && el.setPointerCapture(e.pointerId);
-      pressTimer = setTimeout(function(){
-        armed = true;
-        pushHistory();
-        openSlider(cfg, baseVal, curMax, curDialMax);
-      }, HOLD_MS);
-    }
-    function onMove(e){
-      if(!armed && pressTimer){
-        if(Math.abs(e.clientX-startX) > 12 || Math.abs(e.clientY-startY) > 12){
-          clearTimeout(pressTimer); pressTimer = null;
-        }
+  document.querySelectorAll('[data-action]').forEach(function(button){
+    button.addEventListener('click', function(){
+      var action = button.dataset.action;
+      var delta = action.endsWith('plus') ? 1 : -1;
+      if(action.startsWith('life')) changeValue(state,'life',delta,0,LIFE_MAX,document.getElementById('lifeCard'));
+      else if(action.startsWith('mana')) changeValue(state,'manaCurrent',delta,0,state.manaMax+MANA_OVERFLOW_BUFFER,document.getElementById('manaCard'));
+      else {
+        if(state.manaMax + delta < 0 || state.manaMax + delta > 40){ fail(button); return; }
+        pushHistory(); state.manaMax += delta;
+        if(delta > 0) state.manaCurrent += 1;
+        state.manaCurrent = Math.min(state.manaCurrent,state.manaMax+MANA_OVERFLOW_BUFFER);
+        render(); ok(button);
       }
-      // once armed, the overlay's own wheel handles all further interaction
-    }
-    function onUp(e){
-      if(armed){
-        armed = false; // finger lifting off the source element no longer closes anything
-        return;
-      }
-      if(pressTimer){
-        clearTimeout(pressTimer); pressTimer = null;
-        cfg.onTap();
-      }
-    }
-    el.addEventListener('pointerdown', onDown);
-    el.addEventListener('pointermove', onMove);
-    el.addEventListener('pointerup', onUp);
-    el.addEventListener('pointercancel', function(){
-      clearTimeout(pressTimer); pressTimer = null;
-      armed = false;
     });
-  }
-
-  /* ---------- LIFE ---------- */
-  attachHoldTap(document.getElementById('lifeBar'), {
-    label:'LIFE', color: COLORS.life, min:0, max:LIFE_MAX,
-    getValue: function(){ return state.life; },
-    setValue: function(v){ state.life = v; },
-    onTap: function(){
-      if(state.life <= 0){ fail(document.getElementById('lifeCard')); return; }
-      pushHistory();
-      state.life = clamp(state.life - 1, 0, LIFE_MAX);
-      render();
-      ok(document.getElementById('lifeCard'));
-    }
   });
-
-  /* ---------- CURRENT MANA ---------- */
-  attachHoldTap(document.getElementById('manaBar'), {
-    label:'MANA', color: COLORS.mana, min:0,
-    dialMax: function(){ return state.manaMax; },
-    max: function(){ return state.manaMax + MANA_OVERFLOW_BUFFER; },
-    getValue: function(){ return state.manaCurrent; },
-    setValue: function(v){ state.manaCurrent = v; },
-    onTap: function(){
-      if(state.manaCurrent <= 0){ fail(document.getElementById('manaCard')); return; }
-      pushHistory();
-      state.manaCurrent = clamp(state.manaCurrent - 1, 0, state.manaMax + MANA_OVERFLOW_BUFFER);
-      render();
-      ok(document.getElementById('manaCard'));
-    }
-  });
-
-  // MAX MANA button — a dedicated control, separate from Sites, for anything that adds to your
-  // mana ceiling (Sites, Relics, Auras, whatever a card actually does).
-  // Tap: a discrete "a new mana source just entered play" action — bumps Max AND Current by 1,
-  // since that's the immediate in-game benefit.
-  // Hold (wheel): a bulk correction to Max only — Current is NEVER touched here. If a mana source
-  // leaves play mid-turn, whatever was already drawn from the bucket this turn stays drawn; the
-  // change only shows up once New Turn refills the bucket from the new (lower) Max.
-  attachHoldTap(document.getElementById('manaMaxBtn'), {
-    label:'MAX MANA', color: COLORS.mana, min:0, max:40,
-    getValue: function(){ return state.manaMax; },
-    setValue: function(v){ state.manaMax = v; },
-    onTap: function(){
-      pushHistory();
-      state.manaMax += 1;
-      state.manaCurrent += 1;
-      render();
-      ok(document.getElementById('manaMaxBtn'));
-    }
-  });
-
-  /* ---------- THRESHOLD WEDGES ---------- */
-  Object.keys(AXES).forEach(function(key){
-    var wedgeEl = svg.querySelector('.wedge[data-el="'+key+'"]');
-    attachHoldTap(wedgeEl, {
-      label: key.toUpperCase(), color: AXES[key].color, min:0, dialMax:4, max:THRESH_SLIDER_MAX,
-      getValue: function(){ return state.threshold[key]; },
-      setValue: function(v){ state.threshold[key] = v; },
-      onTap: function(){
-        pushHistory();
-        state.threshold[key] = state.threshold[key] + 1;
-        render();
-        ok(document.getElementById('dots-'+key));
-      }
+  grid.querySelectorAll('button').forEach(function(button){
+    button.addEventListener('click', function(){
+      changeValue(state.threshold,button.dataset.element,Number(button.dataset.delta),0,THRESH_SLIDER_MAX,button);
     });
   });
 
